@@ -33,14 +33,13 @@ def krn(i,j):   # Función Kronecker-Delta
 
 
 # Función de activación de cada nodo en la red
-def f(u):
-     return 0.5*(1.0+np.tanh(alfa*u))
+def f(u):    
+    return 0.5*(1.0+np.tanh(alfa*u))
  
     
 def entrenar(A,B,C,D):
     
-    # actualizamos pesos
-    ##w = np.zeros([n**2, n**2])
+    # actualizamos pesos   
     for i in range(n):
         for j in range(n):
             for k in range(n):
@@ -52,32 +51,32 @@ def entrenar(A,B,C,D):
                     w[X[(i, j)]][X[(k, l)]] = w1 + w2 + w3 + w4
     return w
 
-def update(u, C):
-    # update is done asynchronously
-    # to make update synchronous replace C*(n+1) with a bias vector containing C*(n+sigma)
+def actualizar(v, C):
+    
    
     for iteracion in range(5*n**2):
         i = random.randint(0, n-1)
-        x = random.randint(0, n-1)
-        u[X[(i, x)]][0] = f(np.dot(u.transpose(), w[:, X[(i, x)]]) + C*(n+1))
-    return u
+        j = random.randint(0, n-1)
+        v[X[(i, j)]][0] = f(np.dot(v.transpose(), w[:, X[(i, j)]]) + C*(n+1))
+        
+    return v
 
 
 def predecir(n,totalNodos,A,B,C,D,iteraciones):
     
-    u = np.zeros([totalNodos, 1])
-    # Inicializar con valores aleatorios
+    v = np.zeros([totalNodos, 1])
+    # Inicializar con valores aleatoriosa
     for i in range(n):
         for j in range(n):
-            u[i][0] = random.random()
+            v[i][0] = random.random()
     
-    energiaAnterior = energia(u, A, B, C, D)
+    energiaAnterior = energia(v, A, B, C, D)
     repetido = 0
-    maxRepeticiones= 20
+    maxRepeticiones= 15
     for iteracion in range(iteraciones):
-        u = update(u, C)  
+        v =actualizar(v, C)  
 
-        en = energia(u, A, B, C, D)
+        en = energia(v, A, B, C, D)
         
         if en == energiaAnterior:
             repetido += 1
@@ -90,18 +89,18 @@ def predecir(n,totalNodos,A,B,C,D,iteraciones):
     ret = np.zeros([n, n])
     for i in range(n):
         for j in range(n):
-            ret[i][j] = u[X[(i, j)]][0]
+            ret[i][j] = v[X[(i, j)]][0]
     
     return ret
     
-def energia(u, A, B, C, D):
+def energia(v, A, B, C, D):
     E1 = 0
     
     for j in range(n):
         for i in range(n):
             for k in range(n):
                 if k != i:
-                    E1 += u[X[(j, i)]][0] * u[X[(j, k)]][0]
+                    E1 += v[X[(j, i)]][0] * v[X[(j, k)]][0]
     E1 *= (A/2.0)
 
     E2 = 0
@@ -109,13 +108,13 @@ def energia(u, A, B, C, D):
         for l in range(n):
             for i in range(n):
                 if l != j:
-                    E2 += u[X[(i,j)]][0] * u[X[(i,l)]][0]
+                    E2 += v[X[(i,j)]][0] * v[X[(i,l)]][0]
     E2 *= (B/2.0)
 
     E3 = 0
     for i in range(n):
         for j in range(n):
-            E3 += u[X[(i, j)]][0]
+            E3 += v[X[(i, j)]][0]
     E3 = (C/2.0)*(E3 - n)**2    
 
     E4 = 0
@@ -124,11 +123,11 @@ def energia(u, A, B, C, D):
             for j in range(n):
                 if (k != i):
                     if 0 < i < n-1:
-                        E4 += d[i][k]*u[X[(i, j)]][0]*(u[X[(k, i+1)]][0] + u[X[(k, i-1)]][0])
+                        E4 += d[i][k]*v[X[(i, j)]][0]*(v[X[(k, i+1)]][0] + v[X[(k, i-1)]][0])
                     elif i == n-1:
-                        E4 += d[i][k]*u[X[(i, j)]][0]*(u[X[(k, i-1)]][0] + u[X[(k, 0)]][0])
+                        E4 += d[i][k]*v[X[(i, j)]][0]*(v[X[(k, i-1)]][0] + v[X[(k, 0)]][0])
                     elif i == 0:
-                        E4 += d[i][k]*u[X[(i, j)]][0]*(u[X[(k, i+1)]][0] + u[X[(k, 0)]][0])
+                        E4 += d[i][k]*v[X[(i, j)]][0]*(v[X[(k, i+1)]][0] + v[X[(k, 0)]][0])
                    
                    
                     
@@ -145,8 +144,8 @@ def energia(u, A, B, C, D):
 
 if __name__ == '__main__':
    
-    random.seed(5) 
-    n = 30  # numero de localizaciones
+    #random.seed(5) 
+    n = 20  # numero de localizaciones
     # Crear vector de localización de las ciudades
     localizaciones = np.zeros([n, 2])
     localizaciones[0] = (0.25, 0.16)
@@ -169,7 +168,7 @@ if __name__ == '__main__':
     localizaciones[17] = (0.80, 0.75)
     localizaciones[18] = (0.65, 0.80)
     localizaciones[19] = (0.50, 0.15)
-    localizaciones[20] = (0.15, 0.16)
+    '''localizaciones[20] = (0.15, 0.16)
     localizaciones[21] = (0.79, 0.49)
     localizaciones[22] = (0.59, 0.30)
     localizaciones[23] = (0.85, 0.65)
@@ -178,7 +177,7 @@ if __name__ == '__main__':
     localizaciones[26] = (0.31, 0.57)
     localizaciones[27] = (0.99, 0.89)
     localizaciones[28] = (0.01, 0.02)
-    localizaciones[29] = (0.53, 0.19)  
+    localizaciones[29] = (0.53, 0.19) ''' 
     
     # Calcula matriz distancias, dij : distancia entre i y j
     d = distancias(localizaciones)
@@ -186,13 +185,13 @@ if __name__ == '__main__':
     totalNodos = n**2  
     global alfa
     alfa = 50.0
-    A =100.0 #100.0
-    B = 100.0 # 100.0
-    C = 90.0 #90.0
-    D = 110.0 # 110.0
+    A = 500.0 #500.0 #100.0
+    B = 500.0 # 500.0 # 100.0
+    C = 450.0 # 450.0 #90.0
+    D = 550.0 #550.0 # 110.0
     
     # matriz de pesos de la red neuronal
-    w = np.zeros([totalNodos, totalNodos])   # creo que no es así , deberia ser w nxn  
+    w = np.zeros([totalNodos, totalNodos])     
     
     # listado para realizar la conversión
     X = {}        
@@ -203,7 +202,7 @@ if __name__ == '__main__':
             indice += 1
     
    
-    iteraciones = 3
+    iteraciones = 200
     summation = 0
     mini = 1000
     maxi = -1
@@ -222,7 +221,7 @@ if __name__ == '__main__':
         y = []
         t=0
         print("Iteración:", iteracion+1)           
-        v = predecir(n,totalNodos,A, B, C, D,iteraciones=1000)                  
+        v = predecir(n,totalNodos,A, B, C, D,iteraciones=1000)                 
         dist = 0
         prev_row = -1        
         for col in range(v.shape[1]):
