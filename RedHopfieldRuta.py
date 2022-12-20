@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Dec 15 16:25:44 2022
 
-@author: juan_
-"""
 # Función para calcular la matriz de distancias
 
 import random
@@ -22,23 +18,20 @@ def distancias(localizaciones):
     
     return d            # d será simétrica y con la diagonal = 0
 
-def krn(i,j):   # Función Kronecker-Delta
+ # Función Kronecker-Delta
+def krn(i,j):  
     if i==j:
         return 1.0
     else:
         return 0.0
  
 
-
-
-
 # Función de activación de cada nodo en la red
 def f(u):    
     return 0.5*(1.0+np.tanh(alfa*u))
  
     
-def entrenar(A,B,C,D):
-    
+def entrenar(A,B,C,D):    
     # actualizamos pesos   
     for i in range(n):
         for j in range(n):
@@ -51,8 +44,7 @@ def entrenar(A,B,C,D):
                     w[X[(i, j)]][X[(k, l)]] = w1 + w2 + w3 + w4
     return w
 
-def actualizar(v, C):
-    
+def actualizar(v, C): 
    
     for iteracion in range(5*n**2):
         i = random.randint(0, n-1)
@@ -92,7 +84,8 @@ def predecir(n,totalNodos,A,B,C,D,iteraciones):
             ret[i][j] = v[X[(i, j)]][0]
     
     return ret
-    
+
+# Función de Energía    
 def energia(v, A, B, C, D):
     E1 = 0
     
@@ -128,23 +121,14 @@ def energia(v, A, B, C, D):
                         E4 += d[i][k]*v[X[(i, j)]][0]*(v[X[(k, i-1)]][0] + v[X[(k, 0)]][0])
                     elif i == 0:
                         E4 += d[i][k]*v[X[(i, j)]][0]*(v[X[(k, i+1)]][0] + v[X[(k, 0)]][0])
-                   
-                   
-                    
-               
+            
     E4 *= (D/2.0)
-
     return E1 + E2 + E3 + E4   
-
-
-
-
-
     
 
 if __name__ == '__main__':
    
-    #random.seed(5) 
+    random.seed(42) 
     n = 20  # numero de localizaciones
     # Crear vector de localización de las ciudades
     localizaciones = np.zeros([n, 2])
@@ -185,10 +169,10 @@ if __name__ == '__main__':
     totalNodos = n**2  
     global alfa
     alfa = 50.0
-    A = 500.0 #500.0 #100.0
-    B = 500.0 # 500.0 # 100.0
-    C = 450.0 # 450.0 #90.0
-    D = 550.0 #550.0 # 110.0
+    A = 500.0 #100.0
+    B = 500.0 # 100.0
+    C = 350.0 #90.0
+    D = 550.0 # 110.0
     
     # matriz de pesos de la red neuronal
     w = np.zeros([totalNodos, totalNodos])     
@@ -219,7 +203,7 @@ if __name__ == '__main__':
     for iteracion in range(iteraciones):
         x = []
         y = []
-        t=0
+        localizacionesRecorridas=0
         print("Iteración:", iteracion+1)           
         v = predecir(n,totalNodos,A, B, C, D,iteraciones=1000)                 
         dist = 0
@@ -231,7 +215,7 @@ if __name__ == '__main__':
                         x.append(localizaciones[prev_row][0])
                         y.append(localizaciones[prev_row][1])                       
                         dist += d[prev_row][row]   
-                        t = t +1
+                        localizacionesRecorridas = localizacionesRecorridas +1
                     prev_row = row
                     break
             if (col ==v.shape[1]-1):
@@ -245,8 +229,8 @@ if __name__ == '__main__':
         medias[iteracion] =summation*10/(iteracion+1)        
         minimos[iteracion] =mini*10
         maximos[iteracion] =maxi*10
-        
-        if(dist == mini):
+        # Añadir a mínimos si ha recorrido todos los puntos
+        if(dist == mini and localizacionesRecorridas == n-1):
             minimos[iteracion] =dist*10
             solucion = v
         if(dist == maxi):
@@ -265,7 +249,9 @@ if __name__ == '__main__':
         
 
         plt.show()
-        print("Total localizaciones recorridas: ", t+1)       
+        print("Total localizaciones recorridas: ", localizacionesRecorridas+1)  
+        if(localizacionesRecorridas<n-1):
+            print("Solución incompleta.")
         print("Distancia:", dist*10, " , Min: ", mini*10, ", Media: ", summation*10/(iteracion+1) , "\n")
         
     print("\nMin: {}\nMax: {}\nMedia: {}".format(mini*10, maxi*10, summation*10 / iteraciones))
