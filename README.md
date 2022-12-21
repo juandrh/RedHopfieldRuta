@@ -1,6 +1,6 @@
 # Implementación de una red Hofield para la resolucion del problema del viajero (TSP).
 
-Realizado para la asignatura "Inteligencia Artificial" del grado en Ingerniería Informática de UDIMA (https://www.udima.es).
+Realizado para la asignatura "Inteligencia Artificial" del grado en Ingeniería Informática de UDIMA (https://www.udima.es).
 
 Código adaptado de: https://github.com/ItsWajdy/Hopfield_Network
 
