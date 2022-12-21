@@ -1,6 +1,8 @@
-# Implementación de una red Hofield para la resolucion del problema del viajero (TSP).
+# Implementación de una red Hofield para la resolución del problema del viajero (TSP) en Python.
 
-Realizado para la asignatura "Inteligencia Artificial" del grado en Ingerniería Informática de UDIMA (https://www.udima.es).
+Realizado para la asignatura "Inteligencia Artificial" del grado en Ingeniería Informática de UDIMA (https://www.udima.es).
+
+Puede verse un ejemplo de funcionamiento en: https://youtu.be/372T0IBY55A
 
 Código adaptado de: https://github.com/ItsWajdy/Hopfield_Network
 
