@@ -2,6 +2,8 @@
 
 Realizado para la asignatura "Inteligencia Artificial" del grado en Ingeniería Informática de UDIMA (https://www.udima.es).
 
+Puede verse un ejemplo de funcionamiento en: https://youtu.be/372T0IBY55A
+
 Código adaptado de: https://github.com/ItsWajdy/Hopfield_Network
 
 Otras fuentes:
