@@ -49,8 +49,7 @@ def actualizar(v, C):
     for iteracion in range(5*n**2):
         i = random.randint(0, n-1)
         j = random.randint(0, n-1)
-        v[X[(i, j)]][0] = f(np.dot(v.transpose(), w[:, X[(i, j)]]) + C*(n+1))
-        
+        v[X[(i, j)]][0] = f(np.dot(v.transpose(), w[:, X[(i, j)]]) + C*(n+1.0))        
     return v
 
 
@@ -60,29 +59,30 @@ def predecir(n,totalNodos,A,B,C,D,iteraciones):
     # Inicializar con valores aleatoriosa
     for i in range(n):
         for j in range(n):
-            v[i][0] = random.random()
+            v[n*j+i][0] = random.uniform(0, 0.03)
     
     energiaAnterior = energia(v, A, B, C, D)
     repetido = 0
-    maxRepeticiones= 15
+    maxRepeticiones= 400
     for iteracion in range(iteraciones):
         v =actualizar(v, C)  
-
-        en = energia(v, A, B, C, D)
-        
+        en = energia(v, A, B, C, D)        
         if en == energiaAnterior:
             repetido += 1
         else:
             repetido = 0
-
-        if repetido >maxRepeticiones:
+            
+        if repetido >maxRepeticiones:            
             break
         energiaAnterior = en
+        if (iteracion < 1000):
+            energias[iteracion] = en +energias[iteracion] 
+    
     ret = np.zeros([n, n])
     for i in range(n):
         for j in range(n):
             ret[i][j] = v[X[(i, j)]][0]
-    
+   
     return ret
 
 # Función de Energía    
@@ -122,7 +122,7 @@ def energia(v, A, B, C, D):
                     elif i == 0:
                         E4 += d[i][k]*v[X[(i, j)]][0]*(v[X[(k, i+1)]][0] + v[X[(k, 0)]][0])
             
-    E4 *= (D/2.0)
+    E4 *= (D/2.0) 
     return E1 + E2 + E3 + E4   
     
 
@@ -169,10 +169,10 @@ if __name__ == '__main__':
     totalNodos = n**2  
     global alfa
     alfa = 50.0
-    A = 500.0 #100.0
-    B = 500.0 # 100.0
-    C = 350.0 #90.0
-    D = 550.0 # 110.0
+    A = 100.0 # 500.0
+    B = 100.0 # 500.0
+    C = 90.0 # 350.0
+    D = 100.0 # 550.0
     
     # matriz de pesos de la red neuronal
     w = np.zeros([totalNodos, totalNodos])     
@@ -196,6 +196,7 @@ if __name__ == '__main__':
     valores = np.zeros(iteraciones)
     maximos = np.zeros(iteraciones)
     medias = np.zeros(iteraciones)
+    
     solucion = np.zeros([n, n]) 
     
     w = entrenar(A, B, C, D)
@@ -203,9 +204,12 @@ if __name__ == '__main__':
     for iteracion in range(iteraciones):
         x = []
         y = []
+        energias = np.zeros(1000)
         localizacionesRecorridas=0
         print("Iteración:", iteracion+1)           
-        v = predecir(n,totalNodos,A, B, C, D,iteraciones=1000)                 
+        v = predecir(n,totalNodos,A, B, C, D,iteraciones=1000)   
+
+                   
         dist = 0
         prev_row = -1        
         for col in range(v.shape[1]):
@@ -237,16 +241,20 @@ if __name__ == '__main__':
             maximos[iteracion] =dist*10
         valores[iteracion] =dist*10
                          
-        plt.subplot(2, 1, 1)
+        plt.subplot(3, 1, 1)
         plt.plot(x, y,marker ='o')
         
-        plt.subplot(2, 1,2)        
+        plt.subplot(3, 1,2)        
         
         plt.plot(horizontal,valores,'k.',markersize=1)
         plt.plot(horizontal,maximos,'r.',markersize=1)
         plt.plot(horizontal,medias,'y.',markersize=1)
-        plt.plot(horizontal,minimos,'g.',markersize=1)   
+        plt.plot(horizontal,minimos,'g.',markersize=1)  
         
+        plt.subplot(3, 1,3)
+        h = np.arange(1000)
+                       
+        plt.plot(h,energias,'k.',markersize=1)
 
         plt.show()
         print("Total localizaciones recorridas: ", localizacionesRecorridas+1)  
