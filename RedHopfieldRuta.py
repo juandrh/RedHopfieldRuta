@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-
+# Cálculo de la matriz de distancias
 def distancias(localizaciones): 
     # localizaciones = vector con las coordenadas de cada localización
     n = localizaciones.shape[0]   # calcula el número de localizaciones (n)
@@ -18,7 +18,7 @@ def distancias(localizaciones):
     
     return d            # d será simétrica y con la diagonal = 0
 
- # Función Kronecker-Delta
+ # Función Kronecker-Delta. Aprendizaje Hebbian
 def krn(i,j):  
     if i==j:
         return 1.0
@@ -26,11 +26,11 @@ def krn(i,j):
         return 0.0
  
 
-# Función de activación de cada nodo en la red
+# Función de activación sigmoidal de cada nodo en la red
 def f(u):    
     return 0.5*(1.0+np.tanh(alfa*u))
  
-    
+# Cálculo de la matriz de pesos por el entrenamiento   
 def entrenar(A,B,C,D):    
     # actualizamos pesos   
     for i in range(n):
@@ -44,6 +44,7 @@ def entrenar(A,B,C,D):
                     w[X[(i, j)]][X[(k, l)]] = w1 + w2 + w3 + w4
     return w
 
+# Actualización de los estados externos de la red
 def actualizar(v, C): 
    
     for iteracion in range(5*n**2):
@@ -53,8 +54,8 @@ def actualizar(v, C):
     return v
 
 
-def predecir(n,totalNodos,A,B,C,D,iteraciones):
-    
+
+def predecir(n,totalNodos,A,B,C,D,iteraciones):    
     v = np.zeros([totalNodos, 1])
     # Inicializar con valores aleatoriosa
     for i in range(n):
@@ -63,7 +64,7 @@ def predecir(n,totalNodos,A,B,C,D,iteraciones):
     
     energiaAnterior = energia(v, A, B, C, D)
     repetido = 0
-    maxRepeticiones= 400
+    maxRepeticiones= 15   # límite para determinar si converge la función de energía
     for iteracion in range(iteraciones):
         v =actualizar(v, C)  
         en = energia(v, A, B, C, D)        
@@ -128,8 +129,8 @@ def energia(v, A, B, C, D):
 
 if __name__ == '__main__':
    
-    random.seed(42) 
-    n = 20  # numero de localizaciones
+    random.seed(5)  # semilla de números aleatorios
+    n = 10  # numero de localizaciones
     # Crear vector de localización de las ciudades
     localizaciones = np.zeros([n, 2])
     localizaciones[0] = (0.25, 0.16)
@@ -142,7 +143,7 @@ if __name__ == '__main__':
     localizaciones[7] = (0.90, 0.65)
     localizaciones[8] = (0.55, 0.90)
     localizaciones[9] = (0.60, 0.25)
-    localizaciones[10] = (0.35, 0.26)
+    '''localizaciones[10] = (0.35, 0.26)
     localizaciones[11] = (0.75, 0.40)
     localizaciones[12] = (0.55, 0.34)
     localizaciones[13] = (0.80, 0.60)
@@ -152,7 +153,7 @@ if __name__ == '__main__':
     localizaciones[17] = (0.80, 0.75)
     localizaciones[18] = (0.65, 0.80)
     localizaciones[19] = (0.50, 0.15)
-    '''localizaciones[20] = (0.15, 0.16)
+    localizaciones[20] = (0.15, 0.16)
     localizaciones[21] = (0.79, 0.49)
     localizaciones[22] = (0.59, 0.30)
     localizaciones[23] = (0.85, 0.65)
@@ -172,7 +173,7 @@ if __name__ == '__main__':
     A = 100.0 # 500.0
     B = 100.0 # 500.0
     C = 90.0 # 350.0
-    D = 100.0 # 550.0
+    D = 110.0 # 550.0
     
     # matriz de pesos de la red neuronal
     w = np.zeros([totalNodos, totalNodos])     
@@ -191,6 +192,7 @@ if __name__ == '__main__':
     mini = 1000
     maxi = -1
    
+    # vectores para almacenar resultados a mostrar
     horizontal = np.arange(iteraciones)
     minimos = np.zeros(iteraciones)
     valores = np.zeros(iteraciones)
@@ -240,12 +242,14 @@ if __name__ == '__main__':
         if(dist == maxi):
             maximos[iteracion] =dist*10
         valores[iteracion] =dist*10
-                         
+            
+
+
+        # Gráficos de soluciones parciales             
         plt.subplot(3, 1, 1)
         plt.plot(x, y,marker ='o')
         
-        plt.subplot(3, 1,2)        
-        
+        plt.subplot(3, 1,2)    
         plt.plot(horizontal,valores,'k.',markersize=1)
         plt.plot(horizontal,maximos,'r.',markersize=1)
         plt.plot(horizontal,medias,'y.',markersize=1)
@@ -255,7 +259,6 @@ if __name__ == '__main__':
         h = np.arange(1000)
                        
         plt.plot(h,energias,'k.',markersize=1)
-
         plt.show()
         print("Total localizaciones recorridas: ", localizacionesRecorridas+1)  
         if(localizacionesRecorridas<n-1):
@@ -266,6 +269,8 @@ if __name__ == '__main__':
     x = []
     y = []
     prev_row = -1
+    
+    # Gráfico de solución final
     for col in range(solucion.shape[1]):
         for row in range(solucion.shape[0]):
             
